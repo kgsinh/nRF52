@@ -1,0 +1,93 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+/* Remap LEDs away from SPI CS pins */
+&led0 { gpios = <&gpio0 13 GPIO_ACTIVE_LOW>; };
+&led1 { gpios = <&gpio0 14 GPIO_ACTIVE_LOW>; };
+&led2 { gpios = <&gpio0 15 GPIO_ACTIVE_LOW>; };
+&led3 { gpios = <&gpio0 16 GPIO_ACTIVE_LOW>; };
+
+/* Disable spi1 so it cannot contend for pins/instance */
+&spi1 { status = "disabled"; };
+
+&pinctrl {
+
+    /* I2C0 — MPU-6050
+       SDA → P0.27   SCL → P0.26 */
+    i2c0_default: i2c0_default {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 27)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 26)>;
+        };
+    };
+    i2c0_sleep: i2c0_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 27)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 26)>;
+            low-power-enable;
+        };
+    };
+
+    /* SPI2 — W25Q64
+       MOSI → P0.23   MISO → P0.24   SCK → P0.25   CS → P0.22 */
+    spi2_default: spi2_default {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 23)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 24)>,
+                    <NRF_PSEL(SPIM_SCK,  0, 25)>;
+        };
+    };
+    spi2_sleep: spi2_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 23)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 24)>,
+                    <NRF_PSEL(SPIM_SCK,  0, 25)>;
+            low-power-enable;
+        };
+    };
+};
+
+/* I2C0 — MPU-6050 at address 0x68 */
+&i2c0 {
+    status = "okay";
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
+    pinctrl-names = "default", "sleep";
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+
+    mpu6050@68 {
+        compatible = "invensense,mpu6050";
+        reg = <0x68>;
+        int-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+    };
+};
+
+/* SPI2 — W25Q64 flash, CS on P0.22 */
+&spi2 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi2_default>;
+    pinctrl-1 = <&spi2_sleep>;
+    pinctrl-names = "default", "sleep";
+    cs-gpios = <&gpio0 22 GPIO_ACTIVE_LOW>;
+
+    w25q64jv@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+        size = <DT_SIZE_M(64)>;
+        jedec-id = [ef 40 17];
+        t-enter-dpd = <3000>;
+        t-exit-dpd = <30000>;
+
+        partitions {
+            compatible = "fixed-partitions";
+            #address-cells = <1>;
+            #size-cells = <1>;
+
+            ext_flash_partition: partition@0 {
+                label = "ext_storage";
+                reg = <0x00000000 0x00800000>;
+            };
+        };
+    };
+};
