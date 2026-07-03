@@ -1,7 +1,41 @@
-# editors
-*.swp
-*.json
-*~
-
-# build
+# ── Zephyr / nRF Connect SDK build output ──
 /build*/
+/build/
+*.elf
+*.hex
+*.bin
+*.map
+*.uf2
+compile_commands.json
+
+# ── West workspace (only relevant if you ever init a full west workspace here) ──
+.west/
+
+# ── VS Code ──
+.vscode/*
+!.vscode/tasks.json
+!.vscode/keybindings.json
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+
+# ── Editors / OS cruft ──
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Python (if you add gateway scripts / venvs later) ──
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ── J-Link / RTT logs you don't want committed ──
+*.log
+RTTLogger_*.log
+
+# ── Kconfig / CMake leftovers outside build/ ──
+.cache/
+CMakeFiles/
+CMakeCache.txt

@@ -1,0 +1,29 @@
+# Kconfig for flash_storage module tunable parameters.
+# These use default values and don't need to be set in prj.conf —
+# override them in prj.conf only if you need non-default values.
+#
+# Note: the self-test enable flag (FLASH_STORAGE_SELFTEST) is
+# controlled via CMakeLists.txt rather than Kconfig, to avoid
+# NCS sysbuild Kconfig ordering issues with custom symbols.
+
+menu "Flash Storage Module"
+
+config FLASH_STORAGE_ERASE_RETRIES
+	int "Number of erase verification retries"
+	default 3
+	range 1 10
+	depends on FLASH
+	help
+	  Number of times flash_storage_erase() will retry if the
+	  post-erase read-back does not verify as blank (all 0xFF).
+
+config FLASH_STORAGE_ERASE_WAIT_MS
+	int "Forced wait after erase command (ms)"
+	default 500
+	range 10 2000
+	depends on FLASH
+	help
+	  Milliseconds to wait after issuing an erase command before
+	  verifying the region reads back as blank.
+
+endmenu

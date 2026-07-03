@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "RTT: Open Viewer (popup)",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\SEGGER\\JLink_V944\\JLinkRTTViewer.exe'",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "group": "rtt"
+            }
+        },
+        {
+            "label": "RTT: Open Client (in terminal)",
+            "type": "shell",
+            "command": "& 'C:\\Program Files\\SEGGER\\JLink_V944\\JLinkRTTClient.exe'",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true,
+                "group": "rtt"
+            }
+        }
+    ]
+}
