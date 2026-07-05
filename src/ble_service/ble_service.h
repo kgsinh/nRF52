@@ -3,13 +3,28 @@
 
 #include "shock_detector/shock_detector.h"
 #include <stdbool.h>
+#include <stdint.h>
+
+/**
+ * @brief One log entry as transmitted over BLE — 20 bytes.
+ *
+ * Fits within the default 23-byte ATT MTU. The client uses
+ * index/total to track stream progress and detect completion.
+ * Values are fixed-point (× 100) to avoid float on the gateway.
+ */
+struct __packed ble_log_entry_payload
+{
+    uint16_t index;       /* entry index (0-based)           */
+    uint16_t total;       /* total entries in log            */
+    int64_t timestamp_ms; /* k_uptime_get() at shock time    */
+    int16_t accel_x;      /* m/s² × 100                      */
+    int16_t accel_y;
+    int16_t accel_z;
+    uint16_t magnitude; /* m/s² × 100                      */
+}; /* 20 bytes total                  */
 
 /**
  * @brief Initialize the BLE stack and start advertising.
- *
- * Registers the Asset Tracker GATT service and begins advertising
- * at 100ms interval. Must be called after all other subsystems
- * are initialized.
  *
  * @return 0 on success, negative errno on failure.
  */
@@ -18,8 +33,7 @@ int ble_service_init(void);
 /**
  * @brief Push a shock event notification to a connected client.
  *
- * Called by the shock detector thread after a shock event is
- * detected. No-op if no client is connected or CCCD not enabled.
+ * No-op if no client is connected or CCCD not enabled.
  *
  * @param event Pointer to the shock event to notify.
  */
@@ -27,8 +41,6 @@ void ble_service_notify_shock(const struct shock_event *event);
 
 /**
  * @brief Push a live sensor notification to a connected client.
- *
- * Can be called periodically from a timer or on demand.
  *
  * @param sample Pointer to the IMU sample to notify.
  */
