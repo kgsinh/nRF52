@@ -43,7 +43,7 @@ int imu_fetch(struct imu_sample *sample)
     int rc = sensor_sample_fetch(imu_dev);
     if (rc != 0)
     {
-        LOG_ERR("sensor_sample_fetch failed: %d", rc);
+        LOG_DBG("sensor_sample_fetch failed: %d", rc);
         return rc;
     }
 

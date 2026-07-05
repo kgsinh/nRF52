@@ -58,6 +58,8 @@
         compatible = "invensense,mpu6050";
         reg = <0x68>;
         int-gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
+        accel-fs = <16>;    /* ±16g — measures up to 157 m/s², handles drops/bangs */
+        gyro-fs = <2000>;   /* ±2000°/s — handles vigorous rotation during impacts */
     };
 };
 

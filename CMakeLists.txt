@@ -9,21 +9,21 @@ target_sources(app PRIVATE
     src/main.c
     src/flash_storage/flash_storage.c
     src/imu/imu.c
+    src/shock_detector/shock_detector.c
+    src/ble_service/ble_service.c
 )
 
 target_include_directories(app PRIVATE src src/tests)
 
-# ── Self-test toggle ──────────────────────────────────────────────────
-# ON  → compiles src/tests/ and runs bringup verification on every boot.
-#       Use during active development and hardware bringup.
-# OFF → tests/ folder is excluded entirely from the binary.
-#       Use for production / Milestone 2+ firmware.
+# ── Bringup self-test toggle ──────────────────────────────────────────
 set(BRINGUP_SELFTEST ON)
 
 if(BRINGUP_SELFTEST)
     target_sources(app PRIVATE
         src/tests/flash_test.c
         src/tests/imu_test.c
+        src/tests/shock_test.c
+        src/tests/ble_test.c
     )
     zephyr_compile_definitions(CONFIG_BRINGUP_SELFTEST)
     message(STATUS "Bringup self-test: ENABLED")
