@@ -10,6 +10,7 @@ target_sources(app PRIVATE
     src/flash_storage/flash_storage.c
     src/imu/imu.c
     src/shock_detector/shock_detector.c
+    src/shock_log/shock_log.c
     src/ble_service/ble_service.c
 )
 
@@ -23,6 +24,7 @@ if(BRINGUP_SELFTEST)
         src/tests/flash_test.c
         src/tests/imu_test.c
         src/tests/shock_test.c
+        src/tests/shock_log_test.c
         src/tests/ble_test.c
     )
     zephyr_compile_definitions(CONFIG_BRINGUP_SELFTEST)

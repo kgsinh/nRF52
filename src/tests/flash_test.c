@@ -6,7 +6,10 @@
 
 LOG_MODULE_REGISTER(flash_test, LOG_LEVEL_INF);
 
-#define TEST_OFFSET 0x000000
+/* Use an offset well away from LittleFS metadata.
+   LittleFS uses the first sectors (0x0+) for its superblock.
+   0x400000 = 4MB in — safely in the middle of the 8MB chip. */
+#define TEST_OFFSET 0x400000
 #define TEST_SECTOR_SIZE 4096
 
 void run_flash_selftest(void)

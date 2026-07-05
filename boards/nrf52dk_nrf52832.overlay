@@ -1,24 +1,47 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+/* Tell NCS Partition Manager about the external flash device.
+ * This makes FLASH_AREA_ID() work for external flash partitions.
+ */
+/ {
+    chosen {
+        nordic,pm-ext-flash = &w25q64jv;
+    };
+};
+
 /* Remap LEDs away from SPI CS pins */
-&led0 { gpios = <&gpio0 13 GPIO_ACTIVE_LOW>; };
-&led1 { gpios = <&gpio0 14 GPIO_ACTIVE_LOW>; };
-&led2 { gpios = <&gpio0 15 GPIO_ACTIVE_LOW>; };
-&led3 { gpios = <&gpio0 16 GPIO_ACTIVE_LOW>; };
+&led0 {
+    gpios = <&gpio0 13 GPIO_ACTIVE_LOW>;
+};
+
+&led1 {
+    gpios = <&gpio0 14 GPIO_ACTIVE_LOW>;
+};
+
+&led2 {
+    gpios = <&gpio0 15 GPIO_ACTIVE_LOW>;
+};
+
+&led3 {
+    gpios = <&gpio0 16 GPIO_ACTIVE_LOW>;
+};
 
 /* Disable spi1 so it cannot contend for pins/instance */
-&spi1 { status = "disabled"; };
+&spi1 {
+    status = "disabled";
+};
 
 &pinctrl {
-
     /* I2C0 — MPU-6050
-       SDA → P0.27   SCL → P0.26 */
+     * SDA → P0.27   SCL → P0.26
+     */
     i2c0_default: i2c0_default {
         group1 {
             psels = <NRF_PSEL(TWIM_SDA, 0, 27)>,
                     <NRF_PSEL(TWIM_SCL, 0, 26)>;
         };
     };
+
     i2c0_sleep: i2c0_sleep {
         group1 {
             psels = <NRF_PSEL(TWIM_SDA, 0, 27)>,
@@ -28,7 +51,8 @@
     };
 
     /* SPI2 — W25Q64
-       MOSI → P0.23   MISO → P0.24   SCK → P0.25   CS → P0.22 */
+     * MOSI → P0.23   MISO → P0.24   SCK → P0.25   CS → P0.22
+     */
     spi2_default: spi2_default {
         group1 {
             psels = <NRF_PSEL(SPIM_MOSI, 0, 23)>,
@@ -36,6 +60,7 @@
                     <NRF_PSEL(SPIM_SCK,  0, 25)>;
         };
     };
+
     spi2_sleep: spi2_sleep {
         group1 {
             psels = <NRF_PSEL(SPIM_MOSI, 0, 23)>,
@@ -72,7 +97,7 @@
     pinctrl-names = "default", "sleep";
     cs-gpios = <&gpio0 22 GPIO_ACTIVE_LOW>;
 
-    w25q64jv@0 {
+    w25q64jv: w25q64jv@0 {
         compatible = "jedec,spi-nor";
         reg = <0>;
         spi-max-frequency = <4000000>;

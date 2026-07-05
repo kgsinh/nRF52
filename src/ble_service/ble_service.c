@@ -1,5 +1,6 @@
 #include "ble_service/ble_service.h"
 #include "flash_storage/flash_storage.h"
+#include "shock_log/shock_log.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/bluetooth.h>
@@ -89,10 +90,15 @@ static ssize_t read_flash_status(struct bt_conn *conn,
                                  const struct bt_gatt_attr *attr,
                                  void *buf, uint16_t len, uint16_t offset)
 {
-    struct ble_flash_status_payload payload = {
-        .used_bytes = (uint32_t)flash_storage_get_used(),
-        .total_bytes = (uint32_t)flash_storage_get_total_size(),
-    };
+    struct ble_flash_status_payload payload = {0};
+    uint64_t used = 0, total = 0;
+
+    if (shock_log_fs_stats(&used, &total) == 0)
+    {
+        payload.used_bytes = (uint32_t)used;
+        payload.total_bytes = (uint32_t)total;
+    }
+
     return bt_gatt_attr_read(conn, attr, buf, len, offset,
                              &payload, sizeof(payload));
 }

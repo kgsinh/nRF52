@@ -1,6 +1,7 @@
 #include "shock_detector/shock_detector.h"
 #include "imu/imu.h"
 #include "ble_service/ble_service.h"
+#include "shock_log/shock_log.h"
 
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/sensor.h>
@@ -108,14 +109,20 @@ static void shock_detector_thread(void *p1, void *p2, void *p3)
         /* Notify BLE client if connected */
         ble_service_notify_shock(&event);
 
-        /* Milestone 3: write event to flash ring buffer here */
-        /* Milestone 4: notify BLE characteristic here       */
+        /* Persist to flash ring buffer */
+        int log_rc = shock_log_write(&event);
+        if (log_rc != 0)
+        {
+            LOG_WRN("Flash log write failed: %d", log_rc);
+        }
     }
 }
 
-/* Stack and thread definition — compiled in at link time */
+/* Stack and thread definition — compiled in at link time.
+   Stack must be large enough for LittleFS write operations (~2-3KB)
+   plus BLE notify overhead. */
 K_THREAD_DEFINE(shock_thread,
-                1024, /* stack size in bytes */
+                4096, /* stack size in bytes */
                 shock_detector_thread,
                 NULL, NULL, NULL,
                 7,  /* priority (lower = higher) */

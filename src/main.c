@@ -4,12 +4,14 @@
 #include "flash_storage/flash_storage.h"
 #include "imu/imu.h"
 #include "shock_detector/shock_detector.h"
+#include "shock_log/shock_log.h"
 #include "ble_service/ble_service.h"
 
 #if defined(CONFIG_BRINGUP_SELFTEST)
 #include "flash_test.h"
 #include "imu_test.h"
 #include "shock_test.h"
+#include "shock_log_test.h"
 #include "ble_test.h"
 #endif
 
@@ -22,12 +24,21 @@ int main(void)
 	LOG_INF("=============================");
 	k_msleep(200);
 
-	/* ── Initialize subsystems ── */
+	/* ── Initialize subsystems in dependency order ── */
 	imu_init();
 
 	if (flash_storage_init() != 0)
 	{
 		LOG_ERR("Flash storage init failed — halting");
+		while (1)
+		{
+			k_msleep(1000);
+		}
+	}
+
+	if (shock_log_init() != 0)
+	{
+		LOG_ERR("Shock log init failed — halting");
 		while (1)
 		{
 			k_msleep(1000);
@@ -57,6 +68,7 @@ int main(void)
 	LOG_INF("--- Bringup Self-Tests ---");
 	run_imu_test();
 	run_flash_selftest();
+	run_shock_log_test();
 	run_shock_test();
 	run_ble_test();
 #endif
@@ -64,7 +76,6 @@ int main(void)
 	LOG_INF("-----------------------------");
 	LOG_INF("Bringup complete.");
 
-	/* Main thread exits — shock_detector and BLE threads keep running */
 	k_msleep(1000);
 	return 0;
 }
