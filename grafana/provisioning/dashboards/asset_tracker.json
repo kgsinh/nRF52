@@ -1,0 +1,104 @@
+{
+  "title": "AssetTracker — Shock Log",
+  "uid": "asset_tracker_main",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Shock Events — Magnitude (m/s²)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT \"magnitude\" FROM \"shock_event\" WHERE $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "Magnitude m/s²"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "acceleration",
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 49 },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Shock Events — Acceleration XYZ (m/s²)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT \"accel_x\", \"accel_y\", \"accel_z\" FROM \"shock_event\" WHERE $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "$col"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Total Shock Events",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT COUNT(\"magnitude\") FROM \"shock_event\" WHERE $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "Events"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Peak Magnitude (m/s²)",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 16 },
+      "targets": [
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT MAX(\"magnitude\") FROM \"shock_event\" WHERE $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "Peak m/s²"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Historical vs Live Events",
+      "type": "piechart",
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT COUNT(\"magnitude\") FROM \"shock_event\" WHERE \"source\"='live' AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "Live"
+        },
+        {
+          "datasource": "InfluxDB",
+          "query": "SELECT COUNT(\"magnitude\") FROM \"shock_event\" WHERE \"source\"='historical' AND $timeFilter",
+          "rawQuery": true,
+          "resultFormat": "time_series",
+          "alias": "Historical (gap-fill)"
+        }
+      ]
+    }
+  ]
+}
